@@ -1,6 +1,8 @@
 # TagLib-SPM
 
-A Swift Package Manager version of the TagLib library
+A Swift Package Manager version of the TagLib library.
+
+NOTE: To use this from Swift, you still need an Objective-C wrapper such as [TaglibWrapper](https://github.com/ryanfrancesconi/TaglibWrapper) (or the SPM version thereof, [TagLibKit](https://github.com/NCrusher74/TagLibKit).)
 
 [![Build Status](https://travis-ci.org/taglib/taglib.svg?branch=master)](https://travis-ci.org/taglib/taglib)
 
