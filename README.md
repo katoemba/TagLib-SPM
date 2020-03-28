@@ -1,4 +1,6 @@
-# TagLib
+# TagLib-SPM
+
+A Swift Package Manager version of the TagLib library
 
 [![Build Status](https://travis-ci.org/taglib/taglib.svg?branch=master)](https://travis-ci.org/taglib/taglib)
 
