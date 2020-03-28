@@ -204,7 +204,7 @@ Frame *FrameFactory::createFrame(const ByteVector &origData, const Header *tagHe
   // Text Identification (frames 4.2)
 
   // Apple proprietary WFED (Podcast URL), MVNM (Movement Name), MVIN (Movement Number), GRP1 (Grouping) are in fact text frames.
-  if(frameID.startsWith("T") || frameID == "WFED" || frameID == "MVNM" || frameID == "MVIN" || frameID == "GRP1") {
+  if(frameID.startsWith("T") || frameID == "WFED" || frameID == "MVCN" || frameID == "MVNM" || frameID == "MVIN" || frameID == "GRP1") {
 
     TextIdentificationFrame *f = frameID != "TXXX"
       ? new TextIdentificationFrame(data, header)
@@ -461,9 +461,11 @@ namespace
     { "TDR", "TDRL" },
     { "TDS", "TDES" },
     { "TID", "TGID" },
+    { "TKW", "TKWD" },
     { "WFD", "WFED" },
     { "MVN", "MVNM" },
     { "MVI", "MVIN" },
+    { "MVC", "MVCN" },
     { "GP1", "GRP1" },
   };
   const size_t frameConversion2Size = sizeof(frameConversion2) / sizeof(frameConversion2[0]);

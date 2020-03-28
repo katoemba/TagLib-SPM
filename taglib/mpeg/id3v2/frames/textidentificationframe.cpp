@@ -126,6 +126,11 @@ namespace
       {"ARRANGER", "ARRANGER"},
       {"ENGINEER", "ENGINEER"},
       {"PRODUCER", "PRODUCER"},
+      {"RECORD-COMPANY", "LABEL"},
+      {"EXECUTIVE-PRODUCER", "EXECPRODUCER"},
+      {"DIRECTOR", "DIRECTOR"},
+      {"STUDIO", "STUDIO"},
+      {"COVER-ARTIST", "COVERARTIST"},
       {"DJ-MIX", "DJMIXER"},
       {"MIX", "MIXER"},
   };
