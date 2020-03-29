@@ -142,7 +142,7 @@ Frame *Frame::createTextualFrame(const String &key, const StringList &values) //
     return frame;
   }
   // -COMMENT: depending on the number of values, use COMM or TXXX (with description=COMMENT)
-  if((key == "COMMENT" || key.startsWith(commentPrefix)) && values.size() == 1){
+  if((key == "COMMENT" || key == "ACKNOWLEDGMENT" || key == "THANKS" || key == "CREDITS" || key == "LONGDESCRIPTION" || key == "LINERNOTES" || key == "SERIESDESCRIPTION" || key.startsWith(commentPrefix)) && values.size() == 1){
     CommentsFrame *frame = new CommentsFrame(String::UTF8);
     if (key != "COMMENT"){
       frame->setDescription(key.substr(commentPrefix.size()));
