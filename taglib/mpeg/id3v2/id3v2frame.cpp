@@ -112,7 +112,7 @@ Frame *Frame::createTextualFrame(const String &key, const StringList &values) //
   ByteVector frameID = keyToFrameID(key);
   if(!frameID.isEmpty()) {
     // Apple proprietary WFED (Podcast URL), MVNM (Movement Name), MVIN (Movement Number), GRP1 (Grouping) are in fact text frames.
-    if(frameID[0] == 'T' || frameID == "WFED" || frameID == "MVCN" || frameID == "MVNM" || frameID == "MVIN" || frameID == "GRP1"){ // text frame
+      if(frameID[0] == 'T' || frameID == "WFED" || frameID.startsWith("MV") || frameID == "GRP1"){ // text frame
       TextIdentificationFrame *frame = new TextIdentificationFrame(frameID, String::UTF8);
       frame->setText(values);
       return frame;
@@ -401,6 +401,15 @@ namespace
   const size_t frameTranslationSize = sizeof(frameTranslation) / sizeof(frameTranslation[0]);
 
   const char *txxxFrameTranslation[][2] = {
+    { "Part of Total",                "PART" },
+    { "Series Title",                 "SERIESTITLE" },
+    { "Episode Number",               "EPISODENUMBER" },
+    { "Episode Count",                "EPISODECOUNT" },
+    { "Series Description",           "SERIESDESC" },
+    { "Sort Series",                  "SERIESSORT" },
+    { "Content Rating",               "CONTENTRATING" },
+    { "Content Advisory",             "CONTENTADVISORY" },
+    { "Narrator",                     "NARRATOR" },
     { "MUSICBRAINZ ALBUM ID",         "MUSICBRAINZ_ALBUMID" },
     { "MUSICBRAINZ ARTIST ID",        "MUSICBRAINZ_ARTISTID" },
     { "MUSICBRAINZ ALBUM ARTIST ID",  "MUSICBRAINZ_ALBUMARTISTID" },
@@ -479,8 +488,8 @@ PropertyMap Frame::asProperties() const
   // workaround until this function is virtual
   if(id == "TXXX")
     return dynamic_cast< const UserTextIdentificationFrame* >(this)->asProperties();
-  // Apple proprietary WFED (Podcast URL), MVNM (Movement Name), MVIN (Movement Number), GRP1 (Grouping) are in fact text frames.
-  else if(id[0] == 'T' || id == "WFED" || id == "MVCN" || id == "MVNM" || id == "MVIN" || id == "GRP1")
+  // Apple proprietary WFED (Podcast URL), MVNM (Movement Name), MVIN (Movement Number), MVCN (Movement Count), GRP1 (Grouping) are in fact text frames.
+  else if(id[0] == 'T' || id == "WFED" || id.startsWith("MV") || id == "GRP1")
     return dynamic_cast< const TextIdentificationFrame* >(this)->asProperties();
   else if(id == "WXXX")
     return dynamic_cast< const UserUrlLinkFrame* >(this)->asProperties();
