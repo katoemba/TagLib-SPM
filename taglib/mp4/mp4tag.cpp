@@ -919,10 +919,11 @@ namespace
     { "\251pub", "PUBLISHER" },
     { "\251sol", "SOLOIST" },
     { "\251src", "CREDITS" },
-    { "\251url", "WEBSITE" },
+    { "\251url", "ARTISTURL" },
     { "keyw", "KEYWORDS" },
     { "catg", "CATEGORY" },
     { "pcst", "PODCAST" },
+    { "purl", "PODCASTURL" },
     { "----:com.apple.iTunes:MusicBrainz Track Id", "MUSICBRAINZ_TRACKID" },
     { "----:com.apple.iTunes:MusicBrainz Artist Id", "MUSICBRAINZ_ARTISTID" },
     { "----:com.apple.iTunes:MusicBrainz Album Id", "MUSICBRAINZ_ALBUMID" },
@@ -940,7 +941,12 @@ namespace
     { "----:com.apple.iTunes:LANGUAGE", "LANGUAGE" },
     { "----:com.apple.iTunes:LICENSE", "LICENSE" },
     { "----:com.apple.iTunes:DISCSUBTITLE", "DISCSUBTITLE" },
-    { "----:com.apple.iTunes:EXTC", "CONTENTADVISORY" },
+    { "----:com.apple.iTunes:COPYRIGHT URL", "COPYRIGHTURL" },
+    { "----:com.apple.iTunes:OFFICIAL_AUDIO_FILE_URL", "AUDIOFILEURL" },
+    { "----:com.apple.iTunes:OFFICIAL_AUDIO_SOURCE_URL", "AUDIOSOURCEURL" },
+    { "----:com.apple.iTunes:OFFICIAL_RADIO_URL", "RADIOSTATIONURL" },
+    { "----:com.apple.iTunes:PAYMENT_URL", "PAYMENTURL" },
+    { "----:com.apple.iTunes:LABEL_URL", "PUBLISHERURL" },
   };
   const size_t keyTranslationSize = sizeof(keyTranslation) / sizeof(keyTranslation[0]);
 
@@ -969,7 +975,7 @@ PropertyMap MP4::Tag::properties() const
         }
         props[key] = value;
       }
-      else if(key == "BPM" || key == "MOVEMENTNUMBER" || key == "MOVEMENTCOUNT", || key == "MEDIA") {
+      else if(key == "BPM" || key == "MOVEMENTNUMBER" || key == "MOVEMENTCOUNT" || key == "MEDIA") {
         props[key] = String::number(it->second.toInt());
       }
       else if(key == "COMPILATION" || key == "SHOWWORKMOVEMENT") {

@@ -327,7 +327,6 @@ namespace
     // Text information frames
     { "TALB", "ALBUM"},
     { "TBPM", "BPM" },
-    { "TCMP", "COMPILATION" },
     { "TCOM", "COMPOSER" },
     { "TCON", "GENRE" },
     { "TCOP", "COPYRIGHT" },
@@ -377,12 +376,12 @@ namespace
     { "TSSE", "ENCODING" },
     // URL frames
     { "WCOP", "COPYRIGHTURL" },
-    { "WOAF", "FILEWEBPAGE" },
-    { "WOAR", "ARTISTWEBPAGE" },
-    { "WOAS", "AUDIOSOURCEWEBPAGE" },
-    { "WORS", "RADIOSTATIONWEBPAGE" },
-    { "WPAY", "PAYMENTWEBPAGE" },
-    { "WPUB", "PUBLISHERWEBPAGE" },
+    { "WOAF", "AUDIOFILEURL" },
+    { "WOAR", "ARTISTURL" },
+    { "WOAS", "AUDIOSOURCEURL" },
+    { "WORS", "RADIOSTATIONURL" },
+    { "WPAY", "PAYMENTURL" },
+    { "WPUB", "PUBLISHERURL" },
     //{ "WXXX", "URL"}, handled specially
     // Other frames
     { "COMM", "COMMENT" },
@@ -390,6 +389,7 @@ namespace
     // Apple iTunes proprietary frames
     { "PCST", "PODCAST" },
     { "TCAT", "PODCASTCATEGORY" },
+    { "TCMP", "COMPILATION" },
     { "TDES", "PODCASTDESC" },
     { "TKWD", "PODCASTKEYWORDS" },
     { "TGID", "PODCASTID" },
@@ -402,7 +402,7 @@ namespace
   const size_t frameTranslationSize = sizeof(frameTranslation) / sizeof(frameTranslation[0]);
 
   const char *txxxFrameTranslation[][2] = {
-    { "Part of Total",                "PART" },
+    { "Part of Total",                "PARTNUMBER" },
     { "Series Title",                 "SERIESTITLE" },
     { "Episode Number",               "EPISODENUMBER" },
     { "Episode Count",                "EPISODECOUNT" },
