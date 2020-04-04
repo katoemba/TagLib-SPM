@@ -327,6 +327,7 @@ namespace
     // Text information frames
     { "TALB", "ALBUM"},
     { "TBPM", "BPM" },
+    { "TCMP", "COMPILATION" },
     { "TCOM", "COMPOSER" },
     { "TCON", "GENRE" },
     { "TCOP", "COPYRIGHT" },
@@ -405,7 +406,6 @@ namespace
     { "Series Title",                 "SERIESTITLE" },
     { "Episode Number",               "EPISODENUMBER" },
     { "Episode Count",                "EPISODECOUNT" },
-    { "Series Description",           "SERIESDESC" },
     { "Sort Series",                  "SERIESSORT" },
     { "Content Rating",               "CONTENTRATING" },
     { "Content Advisory",             "CONTENTADVISORY" },

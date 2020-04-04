@@ -130,7 +130,7 @@ namespace
       {"EXECUTIVE-PRODUCER", "EXECPRODUCER"},
       {"DIRECTOR", "DIRECTOR"},
       {"STUDIO", "STUDIO"},
-      {"COVER-ARTIST", "COVERARTIST"},
+      {"ART-DIRECTOR", "ARTDIRECTOR"},
       {"DJ-MIX", "DJMIXER"},
       {"MIX", "MIXER"},
   };

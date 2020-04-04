@@ -886,9 +886,43 @@ namespace
     { "sosn", "SHOWSORT" },
     { "shwm", "SHOWWORKMOVEMENT" },
     { "\251wrk", "WORK" },
+    { "\251nrt", "NARRATOR" },
     { "\251mvn", "MOVEMENTNAME" },
     { "\251mvi", "MOVEMENTNUMBER" },
     { "\251mvc", "MOVEMENTCOUNT" },
+    { "\251mak", "LABEL" },
+    { "\251aut", "LYRICIST" },
+    { "\251con", "CONDUCTOR" },
+    { "\251arg", "REMIXER" },
+    { "stik", "MEDIA" },
+    { "\251st3", "SUBTITLE" },
+    { "\251prd", "PRODUCER" },
+    { "\251sne", "ENGINEER" },
+    { "purd", "PURCHASEDATE" },
+    { "desc", "DESCRIPTION" },
+    { "rtng", "CONTENTRATING" },
+    { "ldes", "LONGDESCRIPTION" },
+    { "sdes", "SONGDESCRIPTION" },
+    { "tvnn", "NETWORK" },
+    { "tvsh", "SERIESTITLE" },
+    { "tves", "EPISODENUMBER" },
+    { "tvsn", "SEASONNUMBER" },
+    { "tven", "EPISODETITLE" },
+    { "\251ard", "ARTDIRECTOR" },
+    { "\251xpd", "EXECPRODUCER" },
+    { "\251cak", "ACKNOWLEDGMENT" },
+    { "\251thx", "THANKS" },
+    { "\251des", "SONGDESCRIPTION" },
+    { "\251lnt", "LINERNOTES" },
+    { "\251ope", "ORIGINALARTIST" },
+    { "\251prf", "PERFORMER" },
+    { "\251pub", "PUBLISHER" },
+    { "\251sol", "SOLOIST" },
+    { "\251src", "CREDITS" },
+    { "\251url", "WEBSITE" },
+    { "keyw", "KEYWORDS" },
+    { "catg", "CATEGORY" },
+    { "pcst", "PODCAST" },
     { "----:com.apple.iTunes:MusicBrainz Track Id", "MUSICBRAINZ_TRACKID" },
     { "----:com.apple.iTunes:MusicBrainz Artist Id", "MUSICBRAINZ_ARTISTID" },
     { "----:com.apple.iTunes:MusicBrainz Album Id", "MUSICBRAINZ_ALBUMID" },
@@ -896,16 +930,8 @@ namespace
     { "----:com.apple.iTunes:MusicBrainz Release Group Id", "MUSICBRAINZ_RELEASEGROUPID" },
     { "----:com.apple.iTunes:MusicBrainz Work Id", "MUSICBRAINZ_WORKID" },
     { "----:com.apple.iTunes:ASIN", "ASIN" },
-    { "----:com.apple.iTunes:LABEL", "LABEL" },
-    { "----:com.apple.iTunes:LYRICIST", "LYRICIST" },
-    { "----:com.apple.iTunes:CONDUCTOR", "CONDUCTOR" },
-    { "----:com.apple.iTunes:REMIXER", "REMIXER" },
-    { "----:com.apple.iTunes:ENGINEER", "ENGINEER" },
-    { "----:com.apple.iTunes:PRODUCER", "PRODUCER" },
     { "----:com.apple.iTunes:DJMIXER", "DJMIXER" },
     { "----:com.apple.iTunes:MIXER", "MIXER" },
-    { "----:com.apple.iTunes:SUBTITLE", "SUBTITLE" },
-    { "----:com.apple.iTunes:DISCSUBTITLE", "DISCSUBTITLE" },
     { "----:com.apple.iTunes:MOOD", "MOOD" },
     { "----:com.apple.iTunes:ISRC", "ISRC" },
     { "----:com.apple.iTunes:CATALOGNUMBER", "CATALOGNUMBER" },
@@ -913,7 +939,8 @@ namespace
     { "----:com.apple.iTunes:SCRIPT", "SCRIPT" },
     { "----:com.apple.iTunes:LANGUAGE", "LANGUAGE" },
     { "----:com.apple.iTunes:LICENSE", "LICENSE" },
-    { "----:com.apple.iTunes:MEDIA", "MEDIA" },
+    { "----:com.apple.iTunes:DISCSUBTITLE", "DISCSUBTITLE" },
+    { "----:com.apple.iTunes:EXTC", "CONTENTADVISORY" },
   };
   const size_t keyTranslationSize = sizeof(keyTranslation) / sizeof(keyTranslation[0]);
 
@@ -942,7 +969,7 @@ PropertyMap MP4::Tag::properties() const
         }
         props[key] = value;
       }
-      else if(key == "BPM" || key == "MOVEMENTNUMBER" || key == "MOVEMENTCOUNT") {
+      else if(key == "BPM" || key == "MOVEMENTNUMBER" || key == "MOVEMENTCOUNT", || key == "MEDIA") {
         props[key] = String::number(it->second.toInt());
       }
       else if(key == "COMPILATION" || key == "SHOWWORKMOVEMENT") {
@@ -997,7 +1024,7 @@ PropertyMap MP4::Tag::setProperties(const PropertyMap &props)
           d->items[name] = MP4::Item(first, second);
         }
       }
-      else if((it->first == "BPM" || it->first == "MOVEMENTNUMBER" || it->first == "MOVEMENTCOUNT") && !it->second.isEmpty()) {
+      else if((it->first == "BPM" || it->first == "MOVEMENTNUMBER" || it->first == "MOVEMENTCOUNT" || it->first == "MEDIA") && !it->second.isEmpty()) {
         int value = it->second.front().toInt();
         d->items[name] = MP4::Item(value);
       }
