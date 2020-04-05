@@ -127,10 +127,12 @@ namespace
       {"ENGINEER", "ENGINEER"},
       {"PRODUCER", "PRODUCER"},
       {"RECORD-COMPANY", "LABEL"},
+      {"CAST", "CAST"},
       {"EXECUTIVE-PRODUCER", "EXECPRODUCER"},
       {"DIRECTOR", "DIRECTOR"},
       {"STUDIO", "STUDIO"},
       {"ART-DIRECTOR", "ARTDIRECTOR"},
+      {"COVER-ARTIST", "COVERARTIST"},
       {"DJ-MIX", "DJMIXER"},
       {"MIX", "MIXER"},
   };

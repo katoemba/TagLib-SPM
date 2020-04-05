@@ -410,6 +410,7 @@ namespace
     { "Content Rating",               "CONTENTRATING" },
     { "Content Advisory",             "CONTENTADVISORY" },
     { "Narrator",                     "NARRATOR" },
+    { "Description",                  "DESCRIPTION" },
     { "MUSICBRAINZ ALBUM ID",         "MUSICBRAINZ_ALBUMID" },
     { "MUSICBRAINZ ARTIST ID",        "MUSICBRAINZ_ARTISTID" },
     { "MUSICBRAINZ ALBUM ARTIST ID",  "MUSICBRAINZ_ALBUMARTISTID" },
