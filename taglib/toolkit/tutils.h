@@ -30,8 +30,13 @@
 
 #ifndef DO_NOT_DOCUMENT  // tell Doxygen not to document this header
 
+#include <cstdint>
+#include <cstdio>
+#include <cstdarg>
+#include <cstring>
+
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+# include "config.h"
 #endif
 
 #if defined(HAVE_MSC_BYTESWAP)
@@ -44,10 +49,7 @@
 # include <sys/endian.h>
 #endif
 
-#include <tstring.h>
-#include <cstdio>
-#include <cstdarg>
-#include <cstring>
+#include "tstring.h"
 
 namespace TagLib
 {
@@ -57,9 +59,9 @@ namespace TagLib
     {
 
       /*!
-       * Reverses the order of bytes in an 16-bit integer.
+       * Reverses the order of bytes in a 16-bit integer.
        */
-      inline unsigned short byteSwap(unsigned short x)
+      inline uint16_t byteSwap(uint16_t x)
       {
 #if defined(HAVE_GCC_BYTESWAP)
 
@@ -89,9 +91,9 @@ namespace TagLib
       }
 
       /*!
-       * Reverses the order of bytes in an 32-bit integer.
+       * Reverses the order of bytes in a 32-bit integer.
        */
-      inline unsigned int byteSwap(unsigned int x)
+      inline uint32_t byteSwap(uint32_t x)
       {
 #if defined(HAVE_GCC_BYTESWAP)
 
@@ -124,9 +126,9 @@ namespace TagLib
       }
 
       /*!
-       * Reverses the order of bytes in an 64-bit integer.
+       * Reverses the order of bytes in a 64-bit integer.
        */
-      inline unsigned long long byteSwap(unsigned long long x)
+      inline uint64_t byteSwap(uint64_t x)
       {
 #if defined(HAVE_GCC_BYTESWAP)
 
@@ -179,32 +181,13 @@ namespace TagLib
         char buf[BufferSize];
         int length;
 
-#if defined(HAVE_VSNPRINTF)
-
-        length = vsnprintf(buf, BufferSize, format, args);
-
-#elif defined(HAVE_VSPRINTF_S)
-
-        length = vsprintf_s(buf, format, args);
-
-#else
-
-        // The last resort. May cause a buffer overflow.
-
-        length = vsprintf(buf, format, args);
-        if(length >= BufferSize) {
-          debug("Utils::formatString() - Buffer overflow! Returning an empty string.");
-          length = -1;
-        }
-
-#endif
+        length = std::vsnprintf(buf, BufferSize, format, args);
 
         va_end(args);
 
         if(length > 0)
           return String(buf);
-        else
-          return String();
+        return String();
       }
 
       /*!
@@ -221,22 +204,21 @@ namespace TagLib
       /*!
        * Returns the byte order of the system.
        */
-      inline ByteOrder systemByteOrder()
+      constexpr ByteOrder systemByteOrder()
       {
-        union {
+        constexpr union IntCharUnion {
           int  i;
           char c;
-        } u;
+          constexpr IntCharUnion(int j) : i(j) {}
+        } u{1};
 
-        u.i = 1;
         if(u.c == 1)
           return LittleEndian;
-        else
-          return BigEndian;
+        return BigEndian;
       }
-    }
-  }
-}
+    }  // namespace
+  }  // namespace Utils
+}  // namespace TagLib
 
 #endif
 

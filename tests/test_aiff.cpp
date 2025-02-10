@@ -24,10 +24,11 @@
  ***************************************************************************/
 
 #include <string>
-#include <stdio.h>
-#include <tag.h>
-#include <tbytevectorlist.h>
-#include <aifffile.h>
+#include <cstdio>
+
+#include "tbytevectorlist.h"
+#include "tag.h"
+#include "aifffile.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include "utils.h"
 
@@ -123,7 +124,7 @@ public:
     }
     {
       RIFF::AIFF::File f2(newname.c_str());
-      CPPUNIT_ASSERT_EQUAL((unsigned int)3, f2.tag()->header()->majorVersion());
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(3), f2.tag()->header()->majorVersion());
       CPPUNIT_ASSERT_EQUAL(String("Artist A"), f2.tag()->artist());
       CPPUNIT_ASSERT_EQUAL(xxx, f2.tag()->title());
     }
@@ -141,20 +142,20 @@ public:
     CPPUNIT_ASSERT_EQUAL(String("Title1"), f.tag()->title());
 
     f.save();
-    CPPUNIT_ASSERT_EQUAL(7030L, f.length());
-    CPPUNIT_ASSERT_EQUAL(-1L, f.find("Title2"));
+    CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(7030), f.length());
+    CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(-1), f.find("Title2"));
   }
 
   void testFuzzedFile1()
   {
     RIFF::AIFF::File f(TEST_FILE_PATH_C("segfault.aif"));
-    CPPUNIT_ASSERT(!f.isValid());
+    CPPUNIT_ASSERT(f.isValid());
   }
 
   void testFuzzedFile2()
   {
     RIFF::AIFF::File f(TEST_FILE_PATH_C("excessive_alloc.aif"));
-    CPPUNIT_ASSERT(!f.isValid());
+    CPPUNIT_ASSERT(f.isValid());
   }
 
 };

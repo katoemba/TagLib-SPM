@@ -24,14 +24,14 @@
  ***************************************************************************/
 
 #include <string>
-#include <stdio.h>
-#include <tag.h>
-#include <tstringlist.h>
-#include <tbytevectorlist.h>
-#include <tpropertymap.h>
-#include <oggfile.h>
-#include <vorbisfile.h>
-#include <oggpageheader.h>
+#include <cstdio>
+
+#include "tag.h"
+#include "tstringlist.h"
+#include "tpropertymap.h"
+#include "oggfile.h"
+#include "vorbisfile.h"
+#include "oggpageheader.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include "utils.h"
 
@@ -48,6 +48,7 @@ class TestOGG : public CppUnit::TestFixture
   CPPUNIT_TEST(testDictInterface2);
   CPPUNIT_TEST(testAudioProperties);
   CPPUNIT_TEST(testPageChecksum);
+  CPPUNIT_TEST(testPageGranulePosition);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -83,7 +84,7 @@ public:
     {
       Vorbis::File f(newname.c_str());
       CPPUNIT_ASSERT(f.isValid());
-      CPPUNIT_ASSERT_EQUAL(136383L, f.length());
+      CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(136383), f.length());
       CPPUNIT_ASSERT_EQUAL(19, f.lastPageHeader()->pageSequenceNumber());
       CPPUNIT_ASSERT_EQUAL(30U, f.packet(0).size());
       CPPUNIT_ASSERT_EQUAL(131127U, f.packet(1).size());
@@ -99,7 +100,7 @@ public:
     {
       Vorbis::File f(newname.c_str());
       CPPUNIT_ASSERT(f.isValid());
-      CPPUNIT_ASSERT_EQUAL(4370L, f.length());
+      CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(4370), f.length());
       CPPUNIT_ASSERT_EQUAL(3, f.lastPageHeader()->pageSequenceNumber());
       CPPUNIT_ASSERT_EQUAL(30U, f.packet(0).size());
       CPPUNIT_ASSERT_EQUAL(60U, f.packet(1).size());
@@ -145,7 +146,7 @@ public:
 
     Vorbis::File f(newname.c_str());
 
-    CPPUNIT_ASSERT_EQUAL((unsigned int)0, f.tag()->properties().size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(0), f.tag()->properties().size());
 
     PropertyMap newTags;
     StringList values("value 1");
@@ -154,8 +155,8 @@ public:
     f.tag()->setProperties(newTags);
 
     PropertyMap map = f.tag()->properties();
-    CPPUNIT_ASSERT_EQUAL((unsigned int)1, map.size());
-    CPPUNIT_ASSERT_EQUAL((unsigned int)2, map["ARTIST"].size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(1), map.size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(2), map["ARTIST"].size());
     CPPUNIT_ASSERT_EQUAL(String("value 1"), map["ARTIST"][0]);
   }
 
@@ -167,7 +168,7 @@ public:
     Vorbis::File f(newname.c_str());
     PropertyMap tags = f.tag()->properties();
 
-    CPPUNIT_ASSERT_EQUAL((unsigned int)2, tags["UNUSUALTAG"].size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(2), tags["UNUSUALTAG"].size());
     CPPUNIT_ASSERT_EQUAL(String("usual value"), tags["UNUSUALTAG"][0]);
     CPPUNIT_ASSERT_EQUAL(String("another value"), tags["UNUSUALTAG"][1]);
     CPPUNIT_ASSERT_EQUAL(
@@ -209,7 +210,7 @@ public:
       f.save();
 
       f.seek(0x50);
-      CPPUNIT_ASSERT_EQUAL((unsigned int)0x3d3bd92d, f.readBlock(4).toUInt(0, true));
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(0x3d3bd92d), f.readBlock(4).toUInt(0, true));
     }
     {
       Vorbis::File f(copy.fileName().c_str());
@@ -217,11 +218,38 @@ public:
       f.save();
 
       f.seek(0x50);
-      CPPUNIT_ASSERT_EQUAL((unsigned int)0xd985291c, f.readBlock(4).toUInt(0, true));
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(0xd985291c), f.readBlock(4).toUInt(0, true));
     }
 
   }
 
+  void testPageGranulePosition()
+  {
+    ScopedFileCopy copy("empty", ".ogg");
+    {
+      Vorbis::File f(copy.fileName().c_str());
+      // Force the Vorbis comment packet to span more than one page and
+      // check if the granule position is -1 indicating that no packets
+      // finish on this page.
+      f.tag()->setComment(String(ByteVector(70000, 'A')));
+      f.save();
+
+      f.seek(0x3a);
+      CPPUNIT_ASSERT_EQUAL(ByteVector("OggS\0\0", 6), f.readBlock(6));
+      CPPUNIT_ASSERT_EQUAL(static_cast<long long>(-1), f.readBlock(8).toLongLong());
+    }
+    {
+      Vorbis::File f(copy.fileName().c_str());
+      // Use a small Vorbis comment package which ends on the seconds page and
+      // check if the granule position is zero.
+      f.tag()->setComment("A small comment");
+      f.save();
+
+      f.seek(0x3a);
+      CPPUNIT_ASSERT_EQUAL(ByteVector("OggS\0\0", 6), f.readBlock(6));
+      CPPUNIT_ASSERT_EQUAL(static_cast<long long>(0), f.readBlock(8).toLongLong());
+    }
+  }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestOGG);

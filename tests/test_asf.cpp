@@ -24,12 +24,13 @@
  ***************************************************************************/
 
 #include <string>
-#include <stdio.h>
-#include <tag.h>
-#include <tstringlist.h>
-#include <tbytevectorlist.h>
-#include <tpropertymap.h>
-#include <asffile.h>
+#include <cstdio>
+
+#include "tstringlist.h"
+#include "tbytevectorlist.h"
+#include "tpropertymap.h"
+#include "tag.h"
+#include "asffile.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include "utils.h"
 
@@ -50,6 +51,7 @@ class TestASF : public CppUnit::TestFixture
   CPPUNIT_TEST(testSavePicture);
   CPPUNIT_TEST(testSaveMultiplePictures);
   CPPUNIT_TEST(testProperties);
+  CPPUNIT_TEST(testPropertiesAllSupported);
   CPPUNIT_TEST(testRepeatedSave);
   CPPUNIT_TEST_SUITE_END();
 
@@ -108,7 +110,8 @@ public:
     }
     {
       ASF::File f(newname.c_str());
-      CPPUNIT_ASSERT_EQUAL(2, (int)f.tag()->attributeListMap()["WM/AlbumTitle"].size());
+      CPPUNIT_ASSERT_EQUAL(2, static_cast<int>(
+        f.tag()->attributeListMap()["WM/AlbumTitle"].size()));
     }
   }
 
@@ -120,7 +123,7 @@ public:
     {
       ASF::File f(newname.c_str());
       CPPUNIT_ASSERT(!f.tag()->contains("WM/TrackNumber"));
-      f.tag()->setAttribute("WM/TrackNumber", (unsigned int)(123));
+      f.tag()->setAttribute("WM/TrackNumber", static_cast<unsigned int>(123));
       f.save();
     }
     {
@@ -128,7 +131,7 @@ public:
       CPPUNIT_ASSERT(f.tag()->contains("WM/TrackNumber"));
       CPPUNIT_ASSERT_EQUAL(ASF::Attribute::DWordType,
                            f.tag()->attribute("WM/TrackNumber").front().type());
-      CPPUNIT_ASSERT_EQUAL((unsigned int)123, f.tag()->track());
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(123), f.tag()->track());
       f.tag()->setTrack(234);
       f.save();
     }
@@ -137,7 +140,7 @@ public:
       CPPUNIT_ASSERT(f.tag()->contains("WM/TrackNumber"));
       CPPUNIT_ASSERT_EQUAL(ASF::Attribute::UnicodeType,
                            f.tag()->attribute("WM/TrackNumber").front().type());
-      CPPUNIT_ASSERT_EQUAL((unsigned int)234, f.tag()->track());
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(234), f.tag()->track());
     }
   }
 
@@ -216,7 +219,7 @@ public:
     {
       ASF::File f(newname.c_str());
       ASF::AttributeList values2 = f.tag()->attribute("WM/Picture");
-      CPPUNIT_ASSERT_EQUAL((unsigned int)1, values2.size());
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(1), values2.size());
       ASF::Attribute attr2 = values2.front();
       ASF::Picture picture2 = attr2.toPicture();
       CPPUNIT_ASSERT(picture2.isValid());
@@ -253,7 +256,7 @@ public:
     {
       ASF::File f(newname.c_str());
       ASF::AttributeList values2 = f.tag()->attribute("WM/Picture");
-      CPPUNIT_ASSERT_EQUAL((unsigned int)2, values2.size());
+      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(2), values2.size());
       ASF::Picture picture3 = values2[1].toPicture();
       CPPUNIT_ASSERT(picture3.isValid());
       CPPUNIT_ASSERT_EQUAL(String("image/jpeg"), picture3.mimeType());
@@ -302,19 +305,103 @@ public:
     CPPUNIT_ASSERT_EQUAL(StringList("3"), tags["DISCNUMBER"]);
   }
 
+  void testPropertiesAllSupported()
+  {
+    PropertyMap tags;
+    tags["ACOUSTID_ID"] = StringList("Acoustid ID");
+    tags["ACOUSTID_FINGERPRINT"] = StringList("Acoustid Fingerprint");
+    tags["ALBUM"] = StringList("Album");
+    tags["ALBUMARTIST"] = StringList("Album Artist");
+    tags["ALBUMARTISTSORT"] = StringList("Album Artist Sort");
+    tags["ALBUMSORT"] = StringList("Album Sort");
+    tags["ARTIST"] = StringList("Artist");
+    tags["ARTISTS"] = StringList("Artists");
+    tags["ARTISTSORT"] = StringList("Artist Sort");
+    tags["ARTISTWEBPAGE"] = StringList("Artist Webpage");
+    tags["ASIN"] = StringList("ASIN");
+    tags["BARCODE"] = StringList("Barcode");
+    tags["BPM"] = StringList("123");
+    tags["CATALOGNUMBER"] = StringList("Catalog Number");
+    tags["COMMENT"] = StringList("Comment");
+    tags["COMPOSER"] = StringList("Composer");
+    tags["CONDUCTOR"] = StringList("Conductor");
+    tags["COPYRIGHT"] = StringList("2021 Copyright");
+    tags["DATE"] = StringList("2021-01-03 12:29:23");
+    tags["DISCNUMBER"] = StringList("3/5");
+    tags["DISCSUBTITLE"] = StringList("Disc Subtitle");
+    tags["ENCODEDBY"] = StringList("Encoded by");
+    tags["ENCODING"] = StringList("Encoding");
+    tags["ENCODINGTIME"] = StringList("2021-01-03 11:52:19");
+    tags["FILEWEBPAGE"] = StringList("File Webpage");
+    tags["GENRE"] = StringList("Genre");
+    tags["WORK"] = StringList("Grouping");
+    tags["INITIALKEY"] = StringList("Initial Key");
+    tags["ISRC"] = StringList("UKAAA0500001");
+    tags["LABEL"] = StringList("Label");
+    tags["LANGUAGE"] = StringList("eng");
+    tags["LYRICIST"] = StringList("Lyricist");
+    tags["LYRICS"] = StringList("Lyrics");
+    tags["MEDIA"] = StringList("Media");
+    tags["MOOD"] = StringList("Mood");
+    tags["MUSICBRAINZ_ALBUMARTISTID"] = StringList("MusicBrainz_AlbumartistID");
+    tags["MUSICBRAINZ_ALBUMID"] = StringList("MusicBrainz_AlbumID");
+    tags["MUSICBRAINZ_ARTISTID"] = StringList("MusicBrainz_ArtistID");
+    tags["MUSICBRAINZ_RELEASEGROUPID"] = StringList("MusicBrainz_ReleasegroupID");
+    tags["MUSICBRAINZ_RELEASETRACKID"] = StringList("MusicBrainz_ReleasetrackID");
+    tags["MUSICBRAINZ_TRACKID"] = StringList("MusicBrainz_TrackID");
+    tags["MUSICBRAINZ_WORKID"] = StringList("MusicBrainz_WorkID");
+    tags["MUSICIP_PUID"] = StringList("MusicIP PUID");
+    tags["ORIGINALALBUM"] = StringList("Original Album");
+    tags["ORIGINALARTIST"] = StringList("Original Artist");
+    tags["ORIGINALFILENAME"] = StringList("Original Filename");
+    tags["ORIGINALLYRICIST"] = StringList("Original Lyricist");
+    tags["ORIGINALDATE"] = StringList("2021-01-03 13:52:19");
+    tags["PRODUCER"] = StringList("Producer");
+    tags["RELEASECOUNTRY"] = StringList("Release Country");
+    tags["RELEASESTATUS"] = StringList("Release Status");
+    tags["RELEASETYPE"] = StringList("Release Type");
+    tags["REMIXER"] = StringList("Remixer");
+    tags["SCRIPT"] = StringList("Script");
+    tags["SUBTITLE"] = StringList("Subtitle");
+    tags["TITLE"] = StringList("Title");
+    tags["TITLESORT"] = StringList("Title Sort");
+    tags["TRACKNUMBER"] = StringList("2/4");
+
+    ScopedFileCopy copy("silence-1", ".wma");
+    {
+      ASF::File f(copy.fileName().c_str());
+      ASF::Tag *asfTag = f.tag();
+      asfTag->setTitle("");
+      asfTag->attributeListMap().clear();
+      f.save();
+    }
+    {
+      ASF::File f(copy.fileName().c_str());
+      PropertyMap properties = f.properties();
+      CPPUNIT_ASSERT(properties.isEmpty());
+      f.setProperties(tags);
+      f.save();
+    }
+    {
+      const ASF::File f(copy.fileName().c_str());
+      PropertyMap properties = f.properties();
+      if (tags != properties) {
+        CPPUNIT_ASSERT_EQUAL(tags.toString(), properties.toString());
+      }
+      CPPUNIT_ASSERT(tags == properties);
+    }
+  }
+
   void testRepeatedSave()
   {
     ScopedFileCopy copy("silence-1", ".wma");
-
-    {
-      ASF::File f(copy.fileName().c_str());
-      f.tag()->setTitle(longText(128 * 1024));
-      f.save();
-      CPPUNIT_ASSERT_EQUAL(297578L, f.length());
-      f.tag()->setTitle(longText(16 * 1024));
-      f.save();
-      CPPUNIT_ASSERT_EQUAL(68202L, f.length());
-    }
+    ASF::File f(copy.fileName().c_str());
+    f.tag()->setTitle(longText(128 * 1024));
+    f.save();
+    CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(297578), f.length());
+    f.tag()->setTitle(longText(16 * 1024));
+    f.save();
+    CPPUNIT_ASSERT_EQUAL(static_cast<offset_t>(68202), f.length());
   }
 
 };

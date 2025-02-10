@@ -24,13 +24,14 @@
  ***************************************************************************/
 
 #include <string>
-#include <stdio.h>
-#include <apetag.h>
-#include <id3v1tag.h>
-#include <tstringlist.h>
-#include <tbytevectorlist.h>
-#include <tpropertymap.h>
-#include <apefile.h>
+#include <cstdio>
+
+#include "tstringlist.h"
+#include "tbytevectorlist.h"
+#include "tpropertymap.h"
+#include "apetag.h"
+#include "id3v1tag.h"
+#include "apefile.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include "utils.h"
 
@@ -152,6 +153,58 @@ public:
       CPPUNIT_ASSERT_EQUAL(String("ID3v1"), f.properties()["TITLE"].front());
       f.strip(APE::File::ID3v1);
       CPPUNIT_ASSERT(f.properties().isEmpty());
+    }
+  }
+
+  void testProperties()
+  {
+    PropertyMap tags;
+    tags["ALBUM"] = StringList("Album");
+    tags["ALBUMARTIST"] = StringList("Album Artist");
+    tags["ALBUMARTISTSORT"] = StringList("Album Artist Sort");
+    tags["ALBUMSORT"] = StringList("Album Sort");
+    tags["ARTIST"] = StringList("Artist");
+    tags["ARTISTS"] = StringList("Artists");
+    tags["ARTISTSORT"] = StringList("Artist Sort");
+    tags["ASIN"] = StringList("ASIN");
+    tags["BARCODE"] = StringList("Barcode");
+    tags["CATALOGNUMBER"] = StringList("Catalog Number 1").append("Catalog Number 2");
+    tags["COMMENT"] = StringList("Comment");
+    tags["DATE"] = StringList("2021-01-10");
+    tags["DISCNUMBER"] = StringList("3/5");
+    tags["GENRE"] = StringList("Genre");
+    tags["ISRC"] = StringList("UKAAA0500001");
+    tags["LABEL"] = StringList("Label 1").append("Label 2");
+    tags["MEDIA"] = StringList("Media");
+    tags["MUSICBRAINZ_ALBUMARTISTID"] = StringList("MusicBrainz_AlbumartistID");
+    tags["MUSICBRAINZ_ALBUMID"] = StringList("MusicBrainz_AlbumID");
+    tags["MUSICBRAINZ_ARTISTID"] = StringList("MusicBrainz_ArtistID");
+    tags["MUSICBRAINZ_RELEASEGROUPID"] = StringList("MusicBrainz_ReleasegroupID");
+    tags["MUSICBRAINZ_RELEASETRACKID"] = StringList("MusicBrainz_ReleasetrackID");
+    tags["MUSICBRAINZ_TRACKID"] = StringList("MusicBrainz_TrackID");
+    tags["ORIGINALDATE"] = StringList("2021-01-09");
+    tags["RELEASECOUNTRY"] = StringList("Release Country");
+    tags["RELEASESTATUS"] = StringList("Release Status");
+    tags["RELEASETYPE"] = StringList("Release Type");
+    tags["SCRIPT"] = StringList("Script");
+    tags["TITLE"] = StringList("Title");
+    tags["TRACKNUMBER"] = StringList("2/3");
+
+    ScopedFileCopy copy("mac-399", ".ape");
+    {
+      APE::File f(copy.fileName().c_str());
+      PropertyMap properties = f.properties();
+      CPPUNIT_ASSERT(properties.isEmpty());
+      f.setProperties(tags);
+      f.save();
+    }
+    {
+      const APE::File f(copy.fileName().c_str());
+      PropertyMap properties = f.properties();
+      if (tags != properties) {
+        CPPUNIT_ASSERT_EQUAL(tags.toString(), properties.toString());
+      }
+      CPPUNIT_ASSERT(tags == properties);
     }
   }
 

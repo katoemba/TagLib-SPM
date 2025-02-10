@@ -23,8 +23,13 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#include <tstring.h>
-#include <string.h>
+#include <string>
+#include <cstring>
+
+#include "tstring.h"
+#include "tstringlist.h"
+#include "tbytevector.h"
+#include "tutils.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace std;
@@ -52,6 +57,7 @@ class TestString : public CppUnit::TestFixture
   CPPUNIT_TEST(testEncodeNonBMP);
   CPPUNIT_TEST(testIterator);
   CPPUNIT_TEST(testInvalidUTF8);
+  CPPUNIT_TEST(testEmpty);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -82,8 +88,7 @@ public:
     String latin = "Jos\xe9 Carlos";
     CPPUNIT_ASSERT(strcmp(latin.toCString(true), "José Carlos") == 0);
 
-    String c;
-    c = "1";
+    String c = "1";
     CPPUNIT_ASSERT(c == L"1");
 
     c = L'\u4E00';
@@ -95,19 +100,23 @@ public:
     String unicode3(L"\u65E5\u672C\u8A9E");
     CPPUNIT_ASSERT(*(unicode3.toCWString() + 1) == L'\u672C');
 
-    String unicode4(L"\u65e5\u672c\u8a9e", String::UTF16BE);
+    constexpr wchar_t wcSystemOrder[] = {L'\u65E5', L'\u672C', L'\u8A9E', 0};
+    constexpr wchar_t wcSwappedOrder[] = {L'\uE565', L'\u2C67', L'\u9E8A', 0};
+    const std::wstring wsSystemOrder = L"\u65e5\u672c\u8a9e";
+    const std::wstring wsSwappedOrder = L"\ue565\u2c67\u9e8a";
+    const bool isLe = Utils::systemByteOrder() == Utils::LittleEndian;
+
+    String unicode4(isLe ? wcSwappedOrder : wcSystemOrder, String::UTF16BE);
     CPPUNIT_ASSERT(unicode4[1] == L'\u672c');
 
-    String unicode5(L"\u65e5\u672c\u8a9e", String::UTF16LE);
-    CPPUNIT_ASSERT(unicode5[1] == L'\u2c67');
+    String unicode5(isLe ? wcSystemOrder : wcSwappedOrder, String::UTF16LE);
+    CPPUNIT_ASSERT(unicode5[1] == L'\u672c');
 
-    std::wstring stduni = L"\u65e5\u672c\u8a9e";
-
-    String unicode6(stduni, String::UTF16BE);
+    String unicode6(isLe ? wsSwappedOrder : wsSystemOrder, String::UTF16BE);
     CPPUNIT_ASSERT(unicode6[1] == L'\u672c');
 
-    String unicode7(stduni, String::UTF16LE);
-    CPPUNIT_ASSERT(unicode7[1] == L'\u2c67');
+    String unicode7(isLe ? wsSystemOrder : wsSwappedOrder, String::UTF16LE);
+    CPPUNIT_ASSERT(unicode7[1] == L'\u672c');
 
     CPPUNIT_ASSERT(String("  foo  ").stripWhiteSpace() == String("foo"));
     CPPUNIT_ASSERT(String("foo    ").stripWhiteSpace() == String("foo"));
@@ -276,14 +285,14 @@ public:
     ByteVector lf("abc\x0axyz", 7);
     ByteVector crlf("abc\x0d\x0axyz", 8);
 
-    CPPUNIT_ASSERT_EQUAL((unsigned int)7, String(cr).size());
-    CPPUNIT_ASSERT_EQUAL((unsigned int)7, String(lf).size());
-    CPPUNIT_ASSERT_EQUAL((unsigned int)8, String(crlf).size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(7), String(cr).size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(7), String(lf).size());
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(8), String(crlf).size());
 
-    CPPUNIT_ASSERT_EQUAL(L'\x0d', String(cr)[3]);
-    CPPUNIT_ASSERT_EQUAL(L'\x0a', String(lf)[3]);
-    CPPUNIT_ASSERT_EQUAL(L'\x0d', String(crlf)[3]);
-    CPPUNIT_ASSERT_EQUAL(L'\x0a', String(crlf)[4]);
+    CPPUNIT_ASSERT(L'\x0d' == String(cr)[3]);
+    CPPUNIT_ASSERT(L'\x0a' == String(lf)[3]);
+    CPPUNIT_ASSERT(L'\x0d' == String(crlf)[3]);
+    CPPUNIT_ASSERT(L'\x0a' == String(crlf)[4]);
   }
 
   void testUpper()
@@ -333,14 +342,14 @@ public:
     String::Iterator it1 = s1.begin();
     String::Iterator it2 = s2.begin();
 
-    CPPUNIT_ASSERT_EQUAL(L't', *it1);
-    CPPUNIT_ASSERT_EQUAL(L't', *it2);
+    CPPUNIT_ASSERT(L't' == *it1);
+    CPPUNIT_ASSERT(L't' == *it2);
 
     std::advance(it1, 4);
     std::advance(it2, 4);
     *it2 = L'I';
-    CPPUNIT_ASSERT_EQUAL(L'i', *it1);
-    CPPUNIT_ASSERT_EQUAL(L'I', *it2);
+    CPPUNIT_ASSERT(L'i' == *it1);
+    CPPUNIT_ASSERT(L'I' == *it2);
   }
 
   void testInvalidUTF8()
@@ -365,7 +374,80 @@ public:
     CPPUNIT_ASSERT(String(ByteVector("\xED\xB0\x80\xED\xA0\x80"), String::UTF8).isEmpty());
   }
 
+  void testEmpty()
+  {
+    const String empty;
+    const String notEmpty("A");
+    String mutEmpty;
+
+    CPPUNIT_ASSERT_EQUAL(empty, String(""));
+    CPPUNIT_ASSERT_EQUAL(empty, String(std::wstring()));
+    CPPUNIT_ASSERT_EQUAL(empty, String(static_cast<const wchar_t *>(nullptr)));
+    CPPUNIT_ASSERT(empty != String('\0'));
+    CPPUNIT_ASSERT_EQUAL(empty, String(L'\0'));
+    CPPUNIT_ASSERT_EQUAL(empty, String(static_cast<const char *>(nullptr)));
+    CPPUNIT_ASSERT_EQUAL(empty, String(ByteVector()));
+    CPPUNIT_ASSERT_EQUAL(empty.to8Bit(), std::string());
+    CPPUNIT_ASSERT_EQUAL(empty.toWString(), std::wstring());
+    CPPUNIT_ASSERT_EQUAL(::strlen(empty.toCString()), (size_t)0);
+    CPPUNIT_ASSERT_EQUAL(::wcslen(empty.toCWString()), (size_t)0);
+    CPPUNIT_ASSERT(empty.begin() == empty.end());
+    CPPUNIT_ASSERT(empty.cbegin() == empty.cend());
+    CPPUNIT_ASSERT(mutEmpty.begin() == mutEmpty.end());
+    CPPUNIT_ASSERT_EQUAL(empty.find(mutEmpty), 0);
+    CPPUNIT_ASSERT_EQUAL(empty.find(notEmpty), -1);
+    CPPUNIT_ASSERT_EQUAL(notEmpty.find(empty), 0);
+    CPPUNIT_ASSERT_EQUAL(empty.rfind(mutEmpty), 0);
+    CPPUNIT_ASSERT_EQUAL(empty.rfind(notEmpty), -1);
+    CPPUNIT_ASSERT_EQUAL(notEmpty.rfind(empty), 1);
+    CPPUNIT_ASSERT_EQUAL(empty.split(), StringList(empty));
+    CPPUNIT_ASSERT_EQUAL(empty.startsWith(mutEmpty), true);
+    CPPUNIT_ASSERT_EQUAL(empty.startsWith(notEmpty), false);
+    CPPUNIT_ASSERT_EQUAL(notEmpty.startsWith(empty), true);
+    CPPUNIT_ASSERT_EQUAL(empty.substr(0), empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty.append(empty), empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty.append(notEmpty), notEmpty);
+    mutEmpty.clear();
+    CPPUNIT_ASSERT_EQUAL(mutEmpty, empty);
+    CPPUNIT_ASSERT_EQUAL(String(notEmpty).append(empty), notEmpty);
+    CPPUNIT_ASSERT_EQUAL(empty.upper(), empty);
+    CPPUNIT_ASSERT_EQUAL(empty.size(), 0U);
+    CPPUNIT_ASSERT_EQUAL(empty.length(), 0U);
+    CPPUNIT_ASSERT_EQUAL(empty.isEmpty(), true);
+    CPPUNIT_ASSERT_EQUAL(empty.data(String::Latin1), ByteVector());
+    CPPUNIT_ASSERT_EQUAL(empty.data(String::UTF16LE), ByteVector());
+    bool ok;
+    empty.toInt(&ok);
+    CPPUNIT_ASSERT(!ok);
+    CPPUNIT_ASSERT_EQUAL(empty.stripWhiteSpace(), empty);
+    CPPUNIT_ASSERT_EQUAL(empty.isLatin1(), true);
+    CPPUNIT_ASSERT_EQUAL(empty.isAscii(), true);
+    CPPUNIT_ASSERT(empty == mutEmpty);
+    CPPUNIT_ASSERT(empty != notEmpty);
+    CPPUNIT_ASSERT(empty == "");
+    CPPUNIT_ASSERT(empty != " ");
+    CPPUNIT_ASSERT(empty == L"");
+    CPPUNIT_ASSERT(empty != L" ");
+    CPPUNIT_ASSERT(empty == static_cast<const char *>(nullptr));
+    CPPUNIT_ASSERT(!(empty != static_cast<const char *>(nullptr)));
+    CPPUNIT_ASSERT(empty == static_cast<const wchar_t *>(nullptr));
+    CPPUNIT_ASSERT(!(empty != static_cast<const wchar_t *>(nullptr)));
+    CPPUNIT_ASSERT_EQUAL(mutEmpty += empty, empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty += notEmpty, notEmpty);
+    mutEmpty.clear();
+    CPPUNIT_ASSERT_EQUAL(mutEmpty += static_cast<const char *>(nullptr), empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty += static_cast<const wchar_t *>(nullptr), empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty = static_cast<const char *>(nullptr), empty);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty = static_cast<const wchar_t *>(nullptr), empty);
+    String tmp;
+    mutEmpty.swap(tmp);
+    CPPUNIT_ASSERT_EQUAL(mutEmpty, empty);
+    CPPUNIT_ASSERT_EQUAL(empty < notEmpty, true);
+    CPPUNIT_ASSERT_EQUAL(empty + mutEmpty, empty);
+    CPPUNIT_ASSERT_EQUAL(empty + notEmpty, notEmpty);
+    CPPUNIT_ASSERT_EQUAL(empty + static_cast<const char *>(nullptr), empty);
+  }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestString);
-
