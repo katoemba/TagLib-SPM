@@ -45,17 +45,7 @@ let package = Package(
         .headerSearchPath("trueaudio"),
         .headerSearchPath("wavpack"),
         .headerSearchPath("xm"),
-      ]
-    ),
-    .target(
-      name: "TagLibExample",
-      dependencies: [
-        "TagLib"
-      ],
-      path: "examples",
-      sources: [
-        "example.cpp"
-      ]
+        .unsafeFlags(["-std=c++17"])]
     )
   ]
 )
