@@ -288,7 +288,7 @@ List<T> &List<T>::operator=(const List<T> &l)
 }
 
 template <class T>
-void List<T>::swap(List<T> &l)
+void List<T>::swap(List<T> &l) noexcept
 {
   using std::swap;
 
