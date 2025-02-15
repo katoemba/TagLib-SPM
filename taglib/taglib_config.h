@@ -8,5 +8,7 @@
 #define   TAGLIB_WITH_ASF 1
 #define   TAGLIB_WITH_MP4 1
 #define   TAGLIB_WITH_DSF 1
+#define   TAGLIB_WITH_VORBIS 1
+#define   TAGLIB_WITH_RIFF 1
 
 #endif
