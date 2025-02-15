@@ -7,5 +7,6 @@
 
 #define   TAGLIB_WITH_ASF 1
 #define   TAGLIB_WITH_MP4 1
+#define   TAGLIB_WITH_DSF 1
 
 #endif
