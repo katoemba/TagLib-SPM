@@ -137,6 +137,7 @@ namespace
     size_t size;
     size = fwrite(buffer.data(), sizeof(char), buffer.size(), file);
     fflush(file);
+    fsync(fileno(file));
     return size;
   }
 
