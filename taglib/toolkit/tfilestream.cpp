@@ -134,7 +134,10 @@ namespace
 
   size_t writeFile(FileHandle file, const ByteVector &buffer)
   {
-    return fwrite(buffer.data(), sizeof(char), buffer.size(), file);
+    size_t size;
+    size = fwrite(buffer.data(), sizeof(char), buffer.size(), file);
+    fflush(file);
+    return size;
   }
 
 #endif  // _WIN32
